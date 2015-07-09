@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"strings"
 	"time"
@@ -13,7 +14,6 @@ import (
 	"github.com/bjc/goctl"
 )
 
-const sockPath = "/tmp/xmppbot"
 const timeout = 1 * time.Second
 
 var (
@@ -101,6 +101,10 @@ func pingHandler(args []string) string {
 }
 
 func main() {
+	var sockPath string
+	flag.StringVar(&sockPath, "f", "/tmp/xmppbot", "path to UNIX control socket")
+	flag.Parse()
+
 	stopChan = make(chan bool, 1)
 
 	goctl.Logger.SetHandler(log15.StdoutHandler)
