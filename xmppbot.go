@@ -7,8 +7,9 @@ import (
 
 	"gopkg.in/inconshreveable/log15.v2"
 
+	_ "github.com/ThomsonReutersEikon/nitro/src/sipbot" // "sip" scheme
 	"github.com/ThomsonReutersEikon/open-nitro/src/bots"
-	"github.com/ThomsonReutersEikon/open-nitro/src/bots/xmppclient" // Register "xmpp" and "xmpp-bosh" bot schemes
+	_ "github.com/ThomsonReutersEikon/open-nitro/src/bots/xmppclient" // Register "xmpp" and "xmpp-bosh" bot schemes
 	"github.com/bjc/goctl"
 )
 
@@ -17,7 +18,7 @@ const timeout = 1 * time.Second
 
 var (
 	gc       goctl.Goctl
-	xb       *xmppclient.Bot
+	xb       bots.Bot
 	stopChan chan bool
 )
 
@@ -31,23 +32,18 @@ func dialHandler(args []string) string {
 		return "ERROR: bot is already connected."
 	}
 
-	if len(args) != 3 {
-		return "ERROR: dial requires JID, password, and host[:port]"
+	if len(args) != 4 {
+		return "ERROR: dial requires scheme, JID, password, and host[:port]"
 	}
 
-	url := fmt.Sprintf("xmpp-bosh://%s,%s:%s@%s", args[0], emailFromJID(args[0]), args[1], args[2])
+	url := fmt.Sprintf("%s://%s,%s:%s@%s", args[0], args[1], emailFromJID(args[1]), args[2], args[3])
 
 	var err error
 	b, err := bots.Dial(url, timeout)
 	if err != nil {
 		return fmt.Sprintf("ERROR: %s.", err)
 	}
-
-	var ok bool
-	xb, ok = b.(*xmppclient.Bot)
-	if !ok {
-		return "ERROR: bot wasn't xmpp client."
-	}
+	xb = b
 	return "ok"
 }
 
@@ -88,7 +84,10 @@ func presenceHandler(args []string) string {
 	if xb == nil {
 		return "ERROR: bot is not connected."
 	}
-	xb.Sendf(`<presence/>`)
+
+	if err := xb.Online(); err != nil {
+		return fmt.Sprintf("ERROR: sending available presence: %s", err)
+	}
 	return "ok"
 }
 
@@ -97,7 +96,7 @@ func pingHandler(args []string) string {
 		return "ERROR: bot is not connected."
 	}
 
-	xb.Sendf(`<iq type='get' to='%s' id='ping'><ping xmlns='urn:xmpp:ping'/></iq>`, xb.JID().Domain())
+	//	xb.Sendf(`<iq type='get' to='%s' id='ping'><ping xmlns='urn:xmpp:ping'/></iq>`, xb.JID().Domain())
 	return "ok"
 }
 
