@@ -18,14 +18,14 @@ func main() {
 	goctl.Logger.SetHandler(log15.StdoutHandler)
 
 	gc := goctl.NewGoctl(sockPath)
-	if err := gc.AddHandlers([]goctl.Handler{
+	if err := gc.AddHandlers(
 		handlers.Dial{},
 		handlers.Login{},
 		handlers.Bind{},
 		handlers.Stop{C: stopChan},
 		handlers.Presence{},
 		handlers.Raw{},
-	}); err != nil {
+	); err != nil {
 		log15.Crit("Couldn't set up command handlers.", "error", err)
 		return
 	}
