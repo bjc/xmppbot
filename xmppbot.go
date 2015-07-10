@@ -3,10 +3,9 @@ package main
 import (
 	"flag"
 
-	"gopkg.in/inconshreveable/log15.v2"
-
 	"github.com/bjc/goctl"
 	"github.com/bjc/xmppbot/handlers"
+	"gopkg.in/inconshreveable/log15.v2"
 )
 
 func main() {
