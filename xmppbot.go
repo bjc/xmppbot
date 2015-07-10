@@ -10,7 +10,7 @@ import (
 
 	_ "github.com/ThomsonReutersEikon/nitro/src/sipbot" // "sip" scheme
 	"github.com/ThomsonReutersEikon/open-nitro/src/bots"
-	_ "github.com/ThomsonReutersEikon/open-nitro/src/bots/xmppclient" // Register "xmpp" and "xmpp-bosh" bot schemes
+	"github.com/ThomsonReutersEikon/open-nitro/src/bots/xmppclient" // Register "xmpp" and "xmpp-bosh" bot schemes
 	"github.com/bjc/goctl"
 )
 
@@ -39,11 +39,10 @@ func dialHandler(args []string) string {
 	url := fmt.Sprintf("%s://%s,%s:%s@%s", args[0], args[1], emailFromJID(args[1]), args[2], args[3])
 
 	var err error
-	b, err := bots.Dial(url, timeout)
+	xb, err = bots.Dial(url, timeout)
 	if err != nil {
 		return fmt.Sprintf("ERROR: %s.", err)
 	}
-	xb = b
 	return "ok"
 }
 
@@ -91,12 +90,17 @@ func presenceHandler(args []string) string {
 	return "ok"
 }
 
-func pingHandler(args []string) string {
+func rawHandler(args []string) string {
 	if xb == nil {
 		return "ERROR: bot is not connected."
 	}
 
-	//	xb.Sendf(`<iq type='get' to='%s' id='ping'><ping xmlns='urn:xmpp:ping'/></iq>`, xb.JID().Domain())
+	if b, ok := xb.(*xmppclient.Bot); !ok {
+		return "ERROR: can only send raw data on XMPP bot."
+	} else if err := b.Sendf(args[0]); err != nil {
+		return fmt.Sprintf("ERROR: sending raw data: %s", err)
+	}
+
 	return "ok"
 }
 
@@ -116,7 +120,7 @@ func main() {
 		{"bind", bindHandler},
 		{"stop", stopHandler},
 		{"presence", presenceHandler},
-		{"ping", pingHandler},
+		{"raw", rawHandler},
 	})
 	if err := gc.Start(); err != nil {
 		log15.Crit("Coudln't start command listener.", "error", err)
