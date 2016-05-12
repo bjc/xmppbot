@@ -5,9 +5,9 @@ import (
 	"strings"
 	"time"
 
-	_ "github.com/ThomsonReutersEikon/nitro/src/sipbot" // "sip" scheme
-	"github.com/ThomsonReutersEikon/open-nitro/src/bots"
-	_ "github.com/ThomsonReutersEikon/open-nitro/src/bots/xmppclient" // Register "xmpp" and "xmpp-bosh" bot schemes
+	"github.com/ThomsonReutersEikon/nitro/src/bots"
+	_ "github.com/ThomsonReutersEikon/nitro/src/bots/xmppclient" // Register "xmpp" and "xmpp-bosh" bot schemes
+	_ "github.com/ThomsonReutersEikon/nitro/src/sipbot"          // "sip" scheme
 	"github.com/bjc/goctl"
 )
 

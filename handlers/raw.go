@@ -3,7 +3,7 @@ package handlers
 import (
 	"fmt"
 
-	"github.com/ThomsonReutersEikon/open-nitro/src/bots/xmppclient"
+	"github.com/ThomsonReutersEikon/nitro/src/bots/xmppclient"
 	"github.com/bjc/goctl"
 )
 
